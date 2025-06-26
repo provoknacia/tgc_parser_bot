@@ -12,8 +12,10 @@
 
 Пошаговые инструкции по установке:
 ```bash
-npm install my-project
-# или
-git clone https://github.com/yourname/project.git
-cd project
-pip install -r requirements.txt
+pip install logging      # Обычно входит в стандартную библиотеку Python
+pip install sqlite3      # Обычно входит в стандартную библиотеку Python
+pip install matplotlib
+pip install pandas
+pip install telethon
+pip install python-telegram-bot
+pip install asyncio      # Обычно входит в стандартную библиотеку Python (Python 3.7+)
