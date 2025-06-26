@@ -11,13 +11,13 @@ import asyncio
 import io
 import os
 
-# Настройки
-API_ID = 25121926
-API_HASH = 'c7058cec5cfb1b71ea7ca8c90be567bc'
-BOT_TOKEN = '7579090374:AAGiM9qnHNHbwrOPYXurXN8Fvy_HtDI_5sQ'
+
+API_ID = 213213213
+API_HASH = 'ваш_api_hash'
+BOT_TOKEN = 'ваш_токен_тут'
 DB_NAME = 'telegram_stats.db'
 
-# Инициализация базы данных
+
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -47,7 +47,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Сохранение статистики
+
 def save_channel_stats(stats):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -81,7 +81,7 @@ def save_channel_stats(stats):
     conn.commit()
     conn.close()
 
-# Получение истории канала
+
 def get_channel_history(channel_id, limit=30):
     conn = sqlite3.connect(DB_NAME)
     query = '''
@@ -95,7 +95,7 @@ def get_channel_history(channel_id, limit=30):
     conn.close()
     return df
 
-# Генерация графика
+
 def generate_subscribers_plot(channel_id, channel_name):
     df = get_channel_history(channel_id)
     
@@ -103,7 +103,7 @@ def generate_subscribers_plot(channel_id, channel_name):
         return None
     
     df['date'] = pd.to_datetime(df['date'])
-    df = df.sort_values('date')  # Сортируем по дате для правильного отображения
+    df = df.sort_values('date')
     
     plt.figure(figsize=(12, 6))
     plt.plot(df['date'], df['participants'], marker='o', linestyle='-', color='b')
@@ -121,7 +121,7 @@ def generate_subscribers_plot(channel_id, channel_name):
     
     return buf
 
-# Получение статистики канала
+
 async def get_channel_stats(channel_username):
     async with TelegramClient('session_name', API_ID, API_HASH) as client:
         channel = await client.get_entity(channel_username)
@@ -139,12 +139,12 @@ async def get_channel_stats(channel_username):
         save_channel_stats(stats)
         return stats
 
-# Форматирование чисел
+
 def format_number(num):
     return "{:,}".format(num).replace(",", " ")
 
-# Команда /start
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "📊 Бот для анализа Telegram каналов\n\n"
         "Отправьте мне @username канала (например, @durov_russia) и я пришлю:\n"
@@ -152,7 +152,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "• Текущую статистику канала"
     )
 
-# Обработчик сообщений
+
 async def handle_channel_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     channel_username = update.message.text.strip()
     
@@ -163,17 +163,17 @@ async def handle_channel_request(update: Update, context: ContextTypes.DEFAULT_T
     try:
         await update.message.reply_text("⏳ Запрашиваю данные...")
         
-        # Получаем статистику
+
         stats = await get_channel_stats(channel_username)
         
-        # Генерируем график
+
         plot_buffer = generate_subscribers_plot(stats['channel_id'], stats['username'])
         
         if plot_buffer is None:
             await update.message.reply_text("⚠️ Недостаточно данных для построения графика")
             return
         
-        # Формируем отчет
+
         report = (
             f"📊 <b>Статистика канала {stats['title']}</b> (@{stats['username']})\n\n"
             f"👥 <b>Подписчиков:</b> {format_number(stats['participants'])}\n"
@@ -181,7 +181,7 @@ async def handle_channel_request(update: Update, context: ContextTypes.DEFAULT_T
             f"📝 <b>Описание:</b> {stats['description'][:300]}{'...' if len(stats['description']) > 300 else ''}"
         )
         
-        # Отправляем результат
+
         await update.message.reply_photo(
             photo=InputFile(plot_buffer, filename='subscribers_plot.png'),
             caption=report,
@@ -194,23 +194,22 @@ async def handle_channel_request(update: Update, context: ContextTypes.DEFAULT_T
         await update.message.reply_text(f"⚠️ Произошла ошибка: {str(e)}")
         logging.error(f"Error processing {channel_username}: {str(e)}")
 
-# Основная функция
+
 def main():
-    # Инициализация
     init_db()
     
-    # Создаем папку для сессий Telethon
+
     if not os.path.exists('session'):
         os.makedirs('session')
     
-    # Настройка бота
+
     application = Application.builder().token(BOT_TOKEN).build()
     
-    # Обработчики команд
+
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_channel_request))
     
-    # Запуск
+
     application.run_polling()
 
 if __name__ == '__main__':
