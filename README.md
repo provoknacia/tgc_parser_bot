@@ -13,9 +13,22 @@
 Пошаговые инструкции по установке:
 ```bash
 pip install logging      # Обычно входит в стандартную библиотеку Python
+```
+```bash
 pip install sqlite3      # Обычно входит в стандартную библиотеку Python
+```
+```bash
 pip install matplotlib
+```
+```bash
 pip install pandas
+```
+```bash
 pip install telethon
+```
+```bash
 pip install python-telegram-bot
+```
+```bash
 pip install asyncio      # Обычно входит в стандартную библиотеку Python (Python 3.7+)
+```
